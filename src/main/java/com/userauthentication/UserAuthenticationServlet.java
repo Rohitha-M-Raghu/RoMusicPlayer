@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class UserAuthenticationServlet extends HttpServlet {
-
+	
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         JSONObject jsonResponse = new JSONObject();

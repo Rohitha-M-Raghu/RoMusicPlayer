@@ -6,9 +6,15 @@ import org.json.JSONObject;
 
 public class UserAuthenticationService {
 	public static JSONObject loginIn() {
-		// write implementation
-		// should I change it to response class
-		// return httpservletresponse
+		// takes JSON Object as parameter
+		// checks semantics
+		// converts content to POJO
+		// calls authorized layer and gets a response
+		// handle response and create reponse instance from it
+		// return Reponse
+		
+		// Servlet gets the Reponse and frames the response on httpsservletresponse
+		
 		return new JSONObject();
 	}
 }

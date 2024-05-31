@@ -1,0 +1,24 @@
+<api-config>
+    <api name="auth">
+        <endpoint path="/MusicPlayer/api/v1/auth" method="POST">
+            <action name="login" service-class="com.music_player.api.service.user.UserAuthenticationService" method="login">
+                <param name="username" required="true" type="string"/>
+                <param name="password" required="true" type="string"/>
+            </action>
+            <action name="logout" service-class="com.userauthentication.service.AuthService" method="logout">
+                <!-- Define parameters for logout action if needed -->
+            </action>
+        </endpoint>
+        <endpoint path="/MusicPlayer/api/v1/songs" method="GET">
+            <action name="getAllSongs" service-class="com.music.service.SongService" method="getAllSongs">
+                <!-- Define parameters for this action if needed -->
+            </action>
+        </endpoint>
+        <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)" method="GET">
+            <action name="getSongById" service-class="com.music.service.SongService" method="getSongById">
+                <param name="songId" required="true" type="integer"/>
+            </action>
+        </endpoint>
+    </api>
+    <!-- Add more APIs and endpoints as needed -->
+</api-config>
