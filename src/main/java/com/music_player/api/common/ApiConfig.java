@@ -171,6 +171,37 @@ public class ApiConfig {
 			this.type = type;
 		}
 		
+		public enum ParamTypePattern{
+			USERNAME("username", "^[a-zA-Z0-9._]{2,20}$"),
+		    PASSWORD("password", "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"),
+		    INTEGER("integer", "^\\d+$");
+			
+			private final String type;
+			private final String pattern;
+
+			private ParamTypePattern(String type, String pattern) {
+				this.type = type;
+				this.pattern = pattern;
+			}
+			
+			public String getType() {
+				return type;
+			}
+
+			public String getPattern() {
+				return pattern;
+			}
+			
+			public static String getPatternFromType(String type) {
+				for(ParamTypePattern typePattern: ParamTypePattern.values()) {
+					if(typePattern.getType().equals(type)) {
+						return typePattern.getPattern();
+					}
+				}
+				return "";
+			}
+		}
+		
 	}
 
 

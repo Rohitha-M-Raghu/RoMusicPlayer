@@ -12,5 +12,11 @@
 	<classpathentry kind="lib" path="/Users/rohitha-18878/Downloads/json-20210307.jar"/>
 	<classpathentry kind="lib" path="/Users/rohitha-18878/Downloads/jackson-core-asl-1.9.9.jar"/>
 	<classpathentry kind="lib" path="/Users/rohitha-18878/Downloads/jackson-mapper-asl.jar"/>
+	<classpathentry kind="lib" path="/Users/rohitha-18878/Downloads/mysql-connector-j-8.4.0/mysql-connector-j-8.4.0.jar"/>
+	<classpathentry kind="lib" path="/Users/rohitha-18878/Downloads/jjwt impl 0.11.5.jar"/>
+	<classpathentry kind="lib" path="/Users/rohitha-18878/Downloads/jjwt api 0.11.5.jar"/>
+	<classpathentry kind="lib" path="/Users/rohitha-18878/Downloads/jjwt jackson 0.11.5.jar"/>
+	<classpathentry kind="lib" path="/Users/rohitha-18878/Downloads/jackson-databind-2.13.4.2.jar"/>
+	<classpathentry kind="lib" path="/Users/rohitha-18878/Downloads/Java JWT 3.18.2.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

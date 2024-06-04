@@ -2,8 +2,8 @@
     <api name="auth">
         <endpoint path="/MusicPlayer/api/v1/auth" method="POST">
             <action name="login" service-class="com.music_player.api.service.user.UserAuthenticationService" method="login">
-                <param name="username" required="true" type="string"/>
-                <param name="password" required="true" type="string"/>
+                <param name="username" required="true" type="username"/>
+                <param name="password" required="true" type="password"/>
             </action>
             <action name="logout" service-class="com.userauthentication.service.AuthService" method="logout">
                 <!-- Define parameters for logout action if needed -->

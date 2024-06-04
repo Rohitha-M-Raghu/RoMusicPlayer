@@ -1,5 +1,5 @@
 //$Id$
-package com.music_player.api.common;
+package com.music_player.api.common.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -29,13 +29,13 @@ public class JacksonUtils {
         }
     }
 
-    public static void serializeToFile(Object obj, File file) {
-        try {
-            objectMapper.writeValue(file, obj);
-        } catch (IOException e) {
-            throw new RuntimeException("Error serializing object to file", e);
-        }
-    }
+//    public static void serializeToFile(Object obj, File file) {
+//        try {
+//            objectMapper.writeValue(file, obj);
+//        } catch (IOException e) {
+//            throw new RuntimeException("Error serializing object to file", e);
+//        }
+//    }
 
     // Convert Reader to String
     public static String convertReaderToString(Reader reader) throws IOException {
