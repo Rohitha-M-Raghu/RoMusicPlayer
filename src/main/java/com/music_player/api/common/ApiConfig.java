@@ -172,7 +172,10 @@ public class ApiConfig {
 		}
 		
 		public enum ParamTypePattern{
-			USERNAME("username", "^[a-zA-Z0-9._]{2,20}$"),
+			USERNAME("username", "^[a-z]{1,12}\\d{0,11}$"),
+			NAME("firstname", "^[A-Za-z]+(?:[-\\s][A-Za-z]+)*$"),
+			USERNAME_OR_EMAIL("usernameoremail", "(^[a-z]{1,12}\\d{0,11}$)|(^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$)"),
+			EMAIL("email", "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"),
 		    PASSWORD("password", "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"),
 		    INTEGER("integer", "^\\d+$");
 			

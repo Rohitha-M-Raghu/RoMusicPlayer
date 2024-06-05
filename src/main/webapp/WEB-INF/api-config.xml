@@ -2,11 +2,16 @@
     <api name="auth">
         <endpoint path="/MusicPlayer/api/v1/auth" method="POST">
             <action name="login" service-class="com.music_player.api.service.user.UserAuthenticationService" method="login">
-                <param name="username" required="true" type="username"/>
+                <param name="username" required="true" type="usernameoremail"/>
                 <param name="password" required="true" type="password"/>
             </action>
-            <action name="logout" service-class="com.userauthentication.service.AuthService" method="logout">
-                <!-- Define parameters for logout action if needed -->
+            <action name="signup" service-class="com.music_player.api.service.user.UserAuthenticationService" method="signup">
+            	<param name = "firstName" required="true" type="name"/>
+            	<param name = "lastName" required="false" type="name"/>
+            	<param name = "emailId" required="true" type="email"/>
+                <param name="password" required="true" type="password"/>            		
+            </action>
+            <action name="logout" service-class="com.music_player.api.service.user.UserAuthenticationService" method="logout">
             </action>
         </endpoint>
         <endpoint path="/MusicPlayer/api/v1/songs" method="GET">

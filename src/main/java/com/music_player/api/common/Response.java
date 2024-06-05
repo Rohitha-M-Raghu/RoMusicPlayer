@@ -43,7 +43,8 @@ public class Response {
 				out.write(responseBody);
 				out.flush();
 			} catch (IOException e) {
-	            logger.log(Level.SEVERE, "Error writing response body", e);		} finally {
+	            logger.log(Level.SEVERE, "Error writing response body", e);	
+	        } finally {
 				if(out != null) {
 					out.close();
 				}
