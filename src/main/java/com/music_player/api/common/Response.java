@@ -13,7 +13,8 @@ public class Response {
 	private int statusCode = HttpServletResponse.SC_OK;
 	private String responseBody;
 	private Cookie cookie;
-	
+	private String contentType;
+    
     private static final Logger logger = Logger.getLogger(Response.class.getName());
 	
 	public int getStatusCode() {
@@ -27,14 +28,17 @@ public class Response {
 	public Cookie getCookie() {
 		return cookie;
 	}
-
-	public void setCookie(Cookie cookie) {
-		this.cookie = cookie;
-	}
 	
 	public void setHttpServletResponse(HttpServletResponse response) {
 		response.setStatus(statusCode);
-		response.setContentType("application/json");
+		if(contentType == null) {
+			response.setContentType("application/json");
+		} else {
+			response.setContentType(contentType);
+		}
+		
+		
+		
 		// recheck this
 		PrintWriter out = null;
 		if(responseBody != null && !responseBody.isEmpty()) {
@@ -50,6 +54,7 @@ public class Response {
 				}
 			}
 		}
+
 		
 		if(cookie != null) {
 			response.addCookie(cookie);
@@ -60,12 +65,14 @@ public class Response {
 		this.statusCode = builder.statusCode;
 		this.responseBody = builder.responseBody;
 		this.cookie = builder.cookie;
+		this.contentType = builder.contentType;
 	}
 	
 	public static class Builder {
 		private int statusCode = HttpServletResponse.SC_OK;
 		private String responseBody;
 		private Cookie cookie;
+		private String contentType;
 		
 		public Builder statusCode(int statusCode) {
 			this.statusCode = statusCode;
@@ -79,6 +86,11 @@ public class Response {
 		
 		public Builder cookie(Cookie cookie) {
 			this.cookie = cookie;
+			return this;
+		}
+		
+		public Builder contentType(String contentType) {
+			this.contentType = contentType;
 			return this;
 		}
 		

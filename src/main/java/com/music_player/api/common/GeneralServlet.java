@@ -1,18 +1,15 @@
-//$Id$
 package com.music_player.api.common;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,202 +21,179 @@ import org.json.JSONObject;
 
 import com.music_player.api.common.utils.JacksonUtils;
 
+public class GeneralServlet extends HttpServlet {
+    private ApiConfig apiConfig;
 
-public class GeneralServlet extends HttpServlet{
-	private ApiConfig apiConfig;
-	
-	@Override
-	public void init() throws ServletException {
-		super.init();
-		
-		try {
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        try {
             InputStream inputStream = getServletContext().getResourceAsStream("/WEB-INF/api-config.xml");
-            // Java Architecture for XML Binding
-            JAXBContext context = JAXBContext.newInstance(ApiConfig.class);
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-            // converting xml data to java object
+            JAXBContext jaxbContext = JAXBContext.newInstance(ApiConfig.class);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             apiConfig = (ApiConfig) unmarshaller.unmarshal(inputStream);
         } catch (JAXBException e) {
-            throw new ServletException("Failed to load API configuration", e);
+            throw new ServletException("Failed to parse API configuration", e);
         }
-	}
-	
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		// get required data
-		String requestBody = JacksonUtils.convertReaderToString(request.getReader());
-        JSONObject requestBodyJson = JacksonUtils.convertStringToJSONObject(requestBody);
-        
-        String action = requestBodyJson.optString("action");
-        String path = request.getRequestURI();
-        String method = request.getMethod();
-        
-        // get token from cookie
-        String token = getTokenFromCookie(request);
-        // endpoint
-        // call get response
-        Response serverResponse = getResponse(path, method, action, requestBodyJson, token);
-        serverResponse.setHttpServletResponse(response);
-	}
-	
-	@Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        
     }
-	
-	private String getTokenFromCookie(HttpServletRequest request) {
-		Cookie[] cookies = request.getCookies();
-		for(Cookie cookie: cookies) {
-			if(cookie.getName().equals("token")) {
-				return cookie.getValue();
-			}
-		}
-		return null;
-	}
-	
-	private Response getResponse(String path, String method, String action, JSONObject requestBodyJson, String token) {
-		Response serverResponse;
-		ApiConfig.EndPoint endpoint = findEndpoint(path, method);
-        if(endpoint == null) {
-        	// return invalid url
-        	serverResponse = new Response.Builder().statusCode(HttpServletResponse.SC_NOT_FOUND).responseBody("Invalid URL").build();
-        	return serverResponse;
-        } else {
-        	// get valid action 
-            ApiConfig.Action configAction = findAction(endpoint, action);
-            if(configAction == null) {
-            	serverResponse = new Response.Builder().statusCode(HttpServletResponse.SC_NOT_FOUND).responseBody("Invalid URL").build();
-            	return serverResponse;
-            } else {
-            	// validate params
-            	serverResponse = validateParams(configAction.getParams(), requestBodyJson);
-            	
-            	// validate token here for all requests except login and signup
-            	if(!configAction.getName().equals("login") && !configAction.getName().equals("signup")) {
-            		// remove the following
-            		String userName = "ro";
-            		requestBodyJson.put("userName", userName);
-            		
-            		// if token == null - 403 unauthorized
-            		// decrypt token and get username from it and add it to requestBodyJSON
-            		// if invalid token, return response
-            	}
-            	
-            	if(serverResponse == null) {
-            		return invokeServiceMethod(configAction.getServiceClass(), configAction.getMethod(), requestBodyJson);
-            	} else {
-            		return serverResponse;
-            	}
-            	
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String requestPath = request.getRequestURI();
+        String requestMethod = request.getMethod();
+
+        Response serverResponse = getResponse(request, response, requestPath, requestMethod);
+        serverResponse.setHttpServletResponse(response);
+    }
+
+	private Response getResponse(HttpServletRequest request, HttpServletResponse response, String requestPath, String requestMethod) throws IOException, ServletException {
+		ApiConfig.EndPoint matchedEndPoint = null;
+        
+        Map<String, String> pathParams = null;
+
+        
+        for (ApiConfig.Api api : apiConfig.getApis()) {
+            for (ApiConfig.EndPoint endpoint : api.getEndpoints()) {
+                if (endpoint.getMethod().equalsIgnoreCase(requestMethod)) {
+                    Pattern pattern = Pattern.compile(endpoint.getPath());
+                    Matcher matcher = pattern.matcher(requestPath);
+                    if (matcher.matches()) {
+                        matchedEndPoint = endpoint;
+                        pathParams = extractPathParams(endpoint.getPath(), requestPath);
+                        break;
+                    }
+                }
             }
         }
-	}
-	
-	private ApiConfig.EndPoint findEndpoint(String path, String method) {
-		for(ApiConfig.Api api: apiConfig.getApis()) {
-			for(ApiConfig.EndPoint endpoint: api.getEndpoints()) {
-				Pattern pattern = Pattern.compile(endpoint.getPath());
-				Matcher matcher = pattern.matcher(path);
-				if(matcher.matches() && endpoint.getMethod().equalsIgnoreCase(method)) {
-					return endpoint;
-				}
-			}
-		}
-		return null;
-	}
-	
-	private ApiConfig.Action findAction(ApiConfig.EndPoint endpoint, String action) {
-		if(action.equals("")) {
-			if (endpoint.getActions().size() == 1) {
-                return endpoint.getActions().get(0);
-            } else {
-                return null;
+        if(matchedEndPoint == null) {
+        	return new Response.Builder().statusCode(HttpServletResponse.SC_NOT_FOUND).build();
+        }
+
+        
+        ApiConfig.Action matchedAction = null;
+        String requestBody = JacksonUtils.convertReaderToString(request.getReader());
+        JSONObject requestBodyJSON = JacksonUtils.convertStringToJSONObject(requestBody);
+        String requestAction = "";
+        if(requestBodyJSON.has("action")) {
+        	requestAction = requestBodyJSON.getString("action");
+        }
+             
+    	if(requestAction.equals("")) {
+			if (matchedEndPoint.getActions().size() == 1) {
+				matchedAction = matchedEndPoint.getActions().get(0);
             }
+    	} else {
+    		for (ApiConfig.Action action : matchedEndPoint.getActions()) {
+    			if (action.getName().equals(requestAction)) {
+    				matchedAction = action;
+    				break;
+    			}
+    		}
+    	}
+        
+
+        if (matchedAction == null) {
+        	return new Response.Builder().statusCode(HttpServletResponse.SC_NOT_FOUND).responseBody("Invalid URL").build();   
+        }
+        
+        Map<String, String> queryParams = extractQueryParams(request, matchedAction.getQueryParams());
+
+        RequestData requestData = new RequestData();
+        requestData.setPathParams(pathParams);
+        requestData.setQueryParams(queryParams);
+        requestData.setRequestBodyJSON(requestBodyJSON);
+
+        try {
+			validateParams(matchedAction, requestData);
+		} catch (UnprocessableEntityException e) {
+			JSONObject responseBody = new JSONObject();
+			responseBody.put("errorMsg", e.getMessage());
+			return new Response.Builder().statusCode(422).responseBody(JacksonUtils.convertJSONObjectToString(responseBody)).build();
 		}
-		
-		for(ApiConfig.Action endpointAction: endpoint.getActions()) {
-			if(endpointAction.getName().equals(action)) {
-				return endpointAction;
-			}
-		}
-		return null;
+
+        try {
+            Class<?> serviceClass = Class.forName(matchedAction.getServiceClass());
+            Object serviceInstance = serviceClass.getDeclaredConstructor().newInstance();
+            Method method = serviceClass.getMethod(matchedAction.getMethod(), RequestData.class);
+            return (Response) method.invoke(serviceInstance, requestData);
+            
+        } catch (Exception e) {
+			return new Response.Builder().statusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();        }
 	}
-	
-	
-	private Response validateParams(List<ApiConfig.Param> params, JSONObject requestBodyJson) {
-		String errorMsg = "";
-		if(params == null) {
-			return null;
-		}
-		// check for extra param
-		Set<String> validParamNames = params.stream()
-                .map(ApiConfig.Param::getName)
-                .collect(Collectors.toSet());
-		
-		for (String key : requestBodyJson.keySet()) {
-	        if (!validParamNames.contains(key) && !key.equals("action")) {
-	            errorMsg = "An extra parameter '" + key + "' is found";
-	            return new Response.Builder()
-	                               .statusCode(422)
-	                               .responseBody(errorMsg)
-	                               .build();
-	        }
-	    }
-		
-		// check for mandatory params
-		for(ApiConfig.Param param: params) {
-			if(param.isRequired() && !requestBodyJson.has(param.getName())) {
-				// set jsonresponse
-				errorMsg = "Missing required parameter: " + param.getName();
-			}
-			// validate param types - to implement
-			if(errorMsg.equals("") && !validateParamType(param.getType(), requestBodyJson.getString(param.getName()))) {
-				// couldn't find 422 - unprocessable entity
-				errorMsg = "Invalid parameter type for " + param.getName();	
-			}
-			if(!errorMsg.equals("")) {
-				// send 422 instead of bad request
-				return new Response.Builder().statusCode(422).responseBody(errorMsg).build();
-			}
-		}
-		return null;
-	}
-	
-	private boolean validateParamType(String type, String value) {
-		String stringPattern = ApiConfig.Param.ParamTypePattern.getPatternFromType(type);
-		Pattern pattern = Pattern.compile(ApiConfig.Param.ParamTypePattern.getPatternFromType(type));
-		Matcher matcher = pattern.matcher(value);
-		return matcher.matches();
-	}
-	
-	private Response invokeServiceMethod(String serviceClassName, String serviceClassMethod, JSONObject requestBodyJson) {
-		try {
-			Class<?> serviceClass = Class.forName(serviceClassName);
-			Object serviceInstance = serviceClass.getDeclaredConstructor().newInstance();
-			Method method = serviceClass.getDeclaredMethod(serviceClassMethod, JSONObject.class);
-			return (Response) method.invoke(serviceInstance, requestBodyJson);
-		} catch (Exception e) {
-			return new Response.Builder().statusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
-		}
-	}
-	
-	private void setResponse(Response response, HttpServletResponse servletReponse) throws IOException {
-		if(response == null) {
-			// find the right status
-			servletReponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		}
-		PrintWriter out = servletReponse.getWriter();
-		servletReponse.setStatus(response.getStatusCode());
-		if(response.getCookie() != null) {
-			servletReponse.addCookie(response.getCookie());
-		}
-		out.print(response.getResponseBody());
-        out.flush();
-	}
-	
-	private String getResponseErrorMsg(String errorMsg) {
-		JSONObject errorResponse = new JSONObject();
-		errorResponse.put("message", errorMsg);
-		return JacksonUtils.convertJSONObjectToString(errorResponse);
-	}
+
+    private Map<String, String> extractPathParams(String pathPattern, String requestPath) {
+        Map<String, String> pathParams = new HashMap<>();
+        Pattern pattern = Pattern.compile(pathPattern);
+        Matcher matcher = pattern.matcher(requestPath);
+        if (matcher.matches()) {
+            for (int i = 1; i <= matcher.groupCount(); i++) {
+                pathParams.put("param" + i, matcher.group(i));
+            }
+        }
+        return pathParams;
+    }
+
+    private Map<String, String> extractQueryParams(HttpServletRequest request, List<ApiConfig.QueryParam> queryParams) {
+    	Map<String, String> extractedQueryParams = new HashMap<>();
+    	if(queryParams == null || queryParams.isEmpty()) {
+    		return extractedQueryParams;
+    	}
+        for (ApiConfig.QueryParam queryParam : queryParams) {
+            String paramName = queryParam.getName();
+            String paramValue = request.getParameter(paramName);
+            if (paramValue != null) {
+                extractedQueryParams.put(paramName, paramValue);
+            }
+        }
+        return extractedQueryParams;
+    }
+
+    private void validateParams(ApiConfig.Action action, RequestData requestData) throws ServletException, UnprocessableEntityException {
+        validatePathParams(action, requestData.getPathParams());
+        validateQueryParams(action, requestData.getQueryParams());
+        validateBodyParams(action, requestData.getRequestBodyJSON());
+    }
+
+    private void validatePathParams(ApiConfig.Action action, Map<String, String> pathParams) {
+        // think this is unnecessary
+    }
+
+    private void validateQueryParams(ApiConfig.Action action, Map<String, String> queryParams) throws UnprocessableEntityException {
+    	if(action.getQueryParams() == null || action.getQueryParams().isEmpty()) {
+    		return;
+    	}
+        for (ApiConfig.QueryParam queryParam : action.getQueryParams()) {
+            String paramName = queryParam.getName();
+            String paramValue = queryParams.get(paramName);
+            if (queryParam.isRequired() && paramValue == null) {
+                throw new UnprocessableEntityException("Missing required query parameter: " + paramName);
+            }
+            if (paramValue != null) {
+                String pattern = ApiConfig.Param.ParamTypePattern.getPatternFromType(queryParam.getType());
+                if (!paramValue.matches(pattern)) {
+                    throw new UnprocessableEntityException("Invalid query parameter type for: " + paramName);
+                }
+            }
+        }
+    }
+
+    private void validateBodyParams(ApiConfig.Action action, JSONObject bodyParams) throws UnprocessableEntityException {
+    	if(action.getParams() == null || action.getParams().isEmpty()) {
+    		return;
+    	}
+    	
+        for (ApiConfig.Param param : action.getParams()) {
+            String paramName = param.getName();
+            String paramValue = bodyParams.optString(paramName);
+            if (param.isRequired() && paramValue.isEmpty()) {
+                throw new UnprocessableEntityException("Missing required parameter: " + paramName);
+            }
+            if (!paramValue.isEmpty()) {
+                String pattern = ApiConfig.Param.ParamTypePattern.getPatternFromType(param.getType());
+                if (!paramValue.matches(pattern)) {
+                    throw new UnprocessableEntityException("Invalid parameter type for: " + paramName);
+                }
+            }
+        }
+    }
 }

@@ -50,6 +50,9 @@ public class JacksonUtils {
 
     // Convert String to JSONObject
     public static JSONObject convertStringToJSONObject(String jsonString) {
+    	if(jsonString.equals("")) {
+    		return new JSONObject();
+    	}
         return new JSONObject(jsonString);
     }
 

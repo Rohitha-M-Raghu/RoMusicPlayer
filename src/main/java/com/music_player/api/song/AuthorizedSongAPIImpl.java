@@ -10,7 +10,7 @@ public class AuthorizedSongAPIImpl implements SongAPI{
 	public Song getSongDetails(int songId) throws Exception {
 		// check if user exists - decrpt the token from cookie
 		// check if songId exists
-		if(SongUtil.getInstance().checkIfSongExists(songId)) {
+		if(!SongUtil.getInstance().checkIfSongExists(songId)) {
 			throw new NullPointerException("Song not found");
 		}
 		

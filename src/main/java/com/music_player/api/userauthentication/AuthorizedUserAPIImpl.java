@@ -34,7 +34,7 @@ public class AuthorizedUserAPIImpl implements UserAPI{
 			}
 			
 			if(userName != null) {
-				if(UserUtil.getInstance().isUserExist(userName)) {
+				if(!UserUtil.getInstance().isUserExist(userName)) {
 					throw new AuthenticationException("Invalid username or password");
 				}
 				if(!UserUtil.getInstance().validateUserNamePassword(userName, password)) {

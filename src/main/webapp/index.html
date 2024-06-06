@@ -17,6 +17,18 @@
 	
 	<div id="message"></div>
 	
+	<div class="player-container">
+        <h2 id="song-title">Song Title</h2>
+        <p id="song-artist">Artist Name</p>
+        <audio id="audio-player" controls>
+            Your browser does not support the audio element.
+        </audio>
+        <div class="controls">
+            <button id="play-button">Play</button>
+            <button id="pause-button">Pause</button>
+        </div>
+    </div>
+	
 	<script>
 		$(document).ready(function () {
 			// login submission 
@@ -63,6 +75,27 @@
 		            return null;
 				}
 			});	
+			
+			// Song player
+			
+			// Replace with your actual API endpoint and song ID
+		    const songId = 1; // Example song ID
+		    const apiEndpoint = `/MusicPlayer/api/v1/songs/1`;
+		    
+		   // TO DO
+	        // Make AJAX request to fetch MP3 file data
+	        $.ajax({
+	            url: '/MusicPlayer/api/v1/songs/1/mp3', // Your REST API endpoint
+	            type: 'GET',
+	            success: function(data) {
+	                // Set the data as the source of the audio element
+	                $('#audioPlayer').attr('src', 'data:audio/mpeg;base64,' + data);
+	            },
+	            error: function(xhr, status, error) {
+	                console.error('Error fetching MP3 file:', error);
+	            }
+	        });
+		   
 		});
 	</script>
  </body>

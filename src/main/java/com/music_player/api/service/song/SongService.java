@@ -9,17 +9,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.tomcat.websocket.AuthenticationException;
 import org.json.JSONObject;
 
+import com.music_player.api.common.RequestData;
 import com.music_player.api.common.Response;
 import com.music_player.api.common.utils.JacksonUtils;
 import com.music_player.api.song.util.Song;
 import com.music_player.support.Support;
+import java.util.Arrays;
 
 public class SongService {
 
 	private static final Logger LOGGER = Logger.getLogger(SongService.class.getName());
 	
-	public Response getSongDetails(JSONObject requestBodyJson)   {
-		int songId = requestBodyJson.getInt("songId");
+	public Response getSongDetails(RequestData requestData)   {
+		
+		int songId = Integer.parseInt(requestData.getPathParams().get("param1"));
 		try {
 			Song song = Support.getAuthorizedSongAPIImpl().getSongDetails(songId);
 			return new Response.Builder().ok(JacksonUtils.serialize(song)).build();

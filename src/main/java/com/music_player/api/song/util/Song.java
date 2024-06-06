@@ -9,7 +9,6 @@ public class Song {
 	private String duration;
 	private String genre;
 	private Artist artist;
-    private byte[] mp3File;
     
     public int getSongId() {
 		return songId;
@@ -31,17 +30,12 @@ public class Song {
 		return artist;
 	}
 
-	public byte[] getMp3File() {
-		return mp3File;
-	}
-
 	private Song(Builder builder) {
     	this.songId = builder.songId;
     	this.songTitle = builder.songTitle;
     	this.duration = builder.duration;
     	this.genre = builder.genre;
     	this.artist = builder.artist;
-    	this.mp3File = builder.mp3File;
     }
     
 	public static class Builder {
@@ -50,7 +44,6 @@ public class Song {
 		private String duration;
 		private String genre;
 		private Artist artist;
-	    private byte[] mp3File;
 	    
 	    public Builder(int songId, String songTitle) {
 	    	this.songId = songId;
@@ -69,11 +62,6 @@ public class Song {
 	    
 	    public Builder artist(Artist artist) {
 	    	this.artist = artist;
-	    	return this;
-	    }
-	    
-	    public Builder mp3File(byte[] mp3File) {
-	    	this.mp3File = mp3File;
 	    	return this;
 	    }
 	    

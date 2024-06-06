@@ -13,6 +13,7 @@ import org.apache.tomcat.websocket.AuthenticationException;
 import org.json.JSONObject;
 
 import com.music_player.api.common.ApiConfig;
+import com.music_player.api.common.RequestData;
 import com.music_player.api.common.Response;
 import com.music_player.api.common.utils.JacksonUtils;
 import com.music_player.api.userauthentication.util.User;
@@ -22,7 +23,9 @@ public class UserAuthenticationService {
 	
 	private static final Logger LOGGER = Logger.getLogger(UserAuthenticationService.class.getName());
 	
-	public Response login(JSONObject requestBodyJson) {
+	public Response login(RequestData requestData) {
+		JSONObject requestBodyJson = requestData.getRequestBodyJSON();
+		
 		String userName = requestBodyJson.getString("username");
 		String password = requestBodyJson.getString("password");
 		User user;
@@ -46,7 +49,9 @@ public class UserAuthenticationService {
 		}
 	}
 	
-	public Response signup(JSONObject requestBodyJson) {
+	public Response signup(RequestData requestData) {
+		JSONObject requestBodyJson = requestData.getRequestBodyJSON();
+
 		String firstName = requestBodyJson.getString("firstName");
 		String lastName = requestBodyJson.getString("lastName");
 		String emailId = requestBodyJson.getString("emailId");
@@ -69,7 +74,9 @@ public class UserAuthenticationService {
 		}
 	}
 	
-	public Response logout(JSONObject requestBodyJson) {
+	public Response logout(RequestData requestData) {
+		JSONObject requestBodyJson = requestData.getRequestBodyJSON();
+
 		// implement
 		return new Response.Builder().noContent().build();
 

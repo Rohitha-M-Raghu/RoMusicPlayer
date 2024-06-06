@@ -31,30 +31,31 @@ public class UserUtil {
 	}
 	
 	// DB Calls and other methods
-	public boolean isUserExist(String userName) throws SQLException {
+	public boolean isUserExist(String userName) throws Exception {
 		query = "SELECT COUNT(*) AS ISUSEREXISTS "
 				+ "FROM User_Details "
 				+ "WHERE USER_NAME = ?";
 		pstmt = conn.prepareStatement(query);
 		pstmt.setString(1, userName);
 		res = pstmt.executeQuery();
-		if(res.next()) {
-			return res.getBoolean("ISUSEREXISTS");
+		if(!res.next()) {
+			throw new Exception();
 		}
-		return false;
+		
+		return res.getBoolean("ISUSEREXISTS");
 	}
 	
-	public boolean isEmailExist(String emailId) throws SQLException {
+	public boolean isEmailExist(String emailId) throws Exception {
 		query = "SELECT COUNT(*) AS ISUSEREXISTS "
 				+ "FROM User_Details "
 				+ "WHERE EMAIL_ID = ?";
 		pstmt = conn.prepareStatement(query);
 		pstmt.setString(1, emailId);
 		res = pstmt.executeQuery();
-		if(res.next()) {
-			return res.getBoolean("ISUSEREXISTS");
+		if(!res.next()) {
+			throw new Exception();
 		}
-		return false;
+		return res.getBoolean("ISUSEREXISTS");
 	}
 	
 	public boolean validateUserNamePassword(String userName, String password) throws SQLException {

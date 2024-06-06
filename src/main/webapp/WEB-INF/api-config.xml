@@ -6,24 +6,23 @@
                 <param name="password" required="true" type="password"/>
             </action>
             <action name="signup" service-class="com.music_player.api.service.user.UserAuthenticationService" method="signup">
-            	<param name = "firstName" required="true" type="name"/>
-            	<param name = "lastName" required="false" type="name"/>
-            	<param name = "emailId" required="true" type="email"/>
-                <param name="password" required="true" type="password"/>            		
+                <param name="firstName" required="true" type="name"/>
+                <param name="lastName" required="false" type="name"/>
+                <param name="emailId" required="true" type="email"/>
+                <param name="password" required="true" type="password"/>
             </action>
-            <action name="logout" service-class="com.music_player.api.service.user.UserAuthenticationService" method="logout">
-            </action>
+            <action name="logout" service-class="com.music_player.api.service.user.UserAuthenticationService" method="logout"/>
         </endpoint>
         <endpoint path="/MusicPlayer/api/v1/songs" method="GET">
             <action name="getAllSongs" service-class="com.music.service.SongService" method="getAllSongs">
-                <!-- Define parameters for this action if needed -->
+                <query-param name="genre" required="false" type="string"/>
             </action>
         </endpoint>
         <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)" method="GET">
-            <action name="getSongById" service-class="com.music.service.SongService" method="getSongById">
-                <param name="songId" required="true" type="integer"/>
-            </action>
+            <action name="getSongById" service-class="com.music_player.api.service.song.SongService" method="getSongDetails"/>
+        </endpoint>
+         <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)/mp3" method="GET">
+            <action name="getSongFile" service-class="com.music_player.api.service.song.SongService" method="getSongFile"/>
         </endpoint>
     </api>
-    <!-- Add more APIs and endpoints as needed -->
 </api-config>
