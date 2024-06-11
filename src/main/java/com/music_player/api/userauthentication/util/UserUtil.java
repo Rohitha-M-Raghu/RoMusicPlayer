@@ -45,6 +45,20 @@ public class UserUtil {
 		return res.getBoolean("ISUSEREXISTS");
 	}
 	
+	public boolean isUserExist(int userId) throws Exception {
+		query = "SELECT COUNT(*) AS ISUSEREXISTS "
+				+ "FROM User_Details "
+				+ "WHERE USER_ID  = ?";
+		pstmt = conn.prepareStatement(query);
+		pstmt.setInt(1, userId);
+		res = pstmt.executeQuery();
+		if(!res.next()) {
+			throw new Exception();
+		}
+		
+		return res.getBoolean("ISUSEREXISTS");
+	}
+	
 	public boolean isEmailExist(String emailId) throws Exception {
 		query = "SELECT COUNT(*) AS ISUSEREXISTS "
 				+ "FROM User_Details "

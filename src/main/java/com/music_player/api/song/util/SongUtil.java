@@ -1,16 +1,18 @@
 //$Id$
 package com.music_player.api.song.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import com.music_player.api.artist.Artist;
 import com.music_player.db.DBConnector;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.zip.GZIPOutputStream;
 
 
 public class SongUtil {
@@ -32,7 +34,7 @@ public class SongUtil {
 		this.conn = DBConnector.getInstance().getConnection();
 	}
 	
-	public Song getSongDetails(int songId) throws SQLException, IOException {
+	public Song getSongDetails(int songId, boolean isIncludeSongUrl) throws SQLException, IOException {
 		query = "SELECT * "
 				+ "FROM Song_Details JOIN Artist_Details "
 				+ "ON Song_Details.Artist_ID = Artist_Details.ARTIST_ID " 
@@ -50,15 +52,47 @@ public class SongUtil {
 			
 //			byte[] originalMp3Bytes = res.getBytes("SONG_FILE_MP3");
 //            byte[] compressedMp3Bytes = compressBytes(originalMp3Bytes);
-			
-			return new Song.Builder(res.getInt("SONG_ID"), res.getString("SONG_TITLE"))
-						.duration(res.getString("DURATION"))
-						.genre(res.getString("GENRE"))
-						.artist(artist)
-//						.mp3File(compressedMp3Bytes)
-						.build();
+			Song.Builder songBuilder = new Song.Builder(res.getInt("SONG_ID"), res.getString("SONG_TITLE"))
+					.duration(res.getString("DURATION"))
+					.genre(res.getString("GENRE"))
+					.artist(artist);
+			 if(isIncludeSongUrl) {
+				 return songBuilder.songUrl(res.getString("Song_URL")).build();
+			 }
+			 return songBuilder.build();
 		}
 		return null;
+	}
+	
+	public List<Song> getAllSongs(boolean isIncludeSongUrl) throws SQLException {
+		query = "SELECT * "
+				+ "FROM Song_Details JOIN Artist_Details "
+				+ "ON Song_Details.Artist_ID = Artist_Details.ARTIST_ID ";
+		pstmt = conn.prepareStatement(query);
+		res = pstmt.executeQuery();
+		
+		List<Song> songs = new ArrayList<>();
+		while(res.next()) {
+			Artist artist = new Artist.Builder(res.getInt("ARTIST_ID"), res.getString("ARTIST_NAME"))
+							.description(res.getString("DESCRIPTION"))
+							.country(res.getString("COUNTRY"))
+							.genre(res.getString("GENRE"))
+							.build();
+			
+			Song.Builder songBuilder = new Song.Builder(res.getInt("SONG_ID"), res.getString("SONG_TITLE"))
+					.duration(res.getString("DURATION"))
+					.genre(res.getString("GENRE"))
+					.artist(artist);
+			
+			 if(isIncludeSongUrl) {
+				 Song song = songBuilder.songUrl(res.getString("Song_URL")).build();
+				 songs.add(song) ;
+			 } else {
+				 Song song = songBuilder.build();
+				 songs.add(song);
+			 }
+		}
+		return songs;
 	}
 	
 //	public byte[] getSongFile(int songId) throws SQLException {

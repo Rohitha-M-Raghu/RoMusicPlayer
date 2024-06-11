@@ -1,6 +1,7 @@
 //$Id$
 package com.music_player.api.service.song;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,7 +15,6 @@ import com.music_player.api.common.Response;
 import com.music_player.api.common.utils.JacksonUtils;
 import com.music_player.api.song.util.Song;
 import com.music_player.support.Support;
-import java.util.Arrays;
 
 public class SongService {
 
@@ -23,13 +23,51 @@ public class SongService {
 	public Response getSongDetails(RequestData requestData)   {
 		
 		int songId = Integer.parseInt(requestData.getPathParams().get("param1"));
+		boolean isIncludeSongUrl = false;
+		
+		if(requestData.getQueryParams().containsKey("include")) {
+			String[] includeOptions = requestData.getQueryParams().get("include").split(",");
+			for(String option: includeOptions) {
+				if(option.equals("songUrl")) {
+					isIncludeSongUrl = true;
+				}
+			}
+		}
+		
 		try {
-			Song song = Support.getAuthorizedSongAPIImpl().getSongDetails(songId);
+			Song song = Support.getAuthorizedSongAPIImpl().getSongDetails(songId, isIncludeSongUrl);
 			return new Response.Builder().ok(JacksonUtils.serialize(song)).build();
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, e.getMessage());
 			return buildErrorResponse(e);
 		}
+	}
+	
+	public Response getAllSongs(RequestData requestData) {
+		boolean isIncludeSongUrl = false;
+		
+		if(requestData.getQueryParams().containsKey("include")) {
+			String[] includeOptions = requestData.getQueryParams().get("include").split(",");
+			for(String option: includeOptions) {
+				if(option.equals("songUrl")) {
+					isIncludeSongUrl = true;
+				}
+			}
+		}
+		try {
+			List<Song> songs = Support.getAuthorizedSongAPIImpl().getSongs(isIncludeSongUrl);
+			JSONObject responseBodyJSON = new JSONObject();
+			responseBodyJSON.put("data", songs);
+			if(songs.isEmpty()) {
+				return new Response.Builder().noContent().build();
+			} else {
+				return new Response.Builder().ok(responseBodyJSON.toString()).build();
+			}
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			return buildErrorResponse(e);
+		}
+		
 	}
 	
 	private Response buildErrorResponse(Exception exception) {

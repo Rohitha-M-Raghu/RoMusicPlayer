@@ -30,7 +30,6 @@ public class Response {
 	}
 	
 	public void setHttpServletResponse(HttpServletResponse response) {
-		response.setStatus(statusCode);
 		if(contentType == null) {
 			response.setContentType("application/json");
 		} else {
@@ -41,7 +40,9 @@ public class Response {
 		
 		// recheck this
 		PrintWriter out = null;
-		if(responseBody != null && !responseBody.isEmpty()) {
+		if(responseBody == null || responseBody.isEmpty() || responseBody.equals("[]")) {
+			statusCode = (statusCode == HttpServletResponse.SC_OK)?HttpServletResponse.SC_NO_CONTENT:statusCode;
+		} else {
 			try {
 				out = response.getWriter();
 				out.write(responseBody);
@@ -53,8 +54,9 @@ public class Response {
 					out.close();
 				}
 			}
-		}
 
+		}
+		response.setStatus(statusCode);
 		
 		if(cookie != null) {
 			response.addCookie(cookie);

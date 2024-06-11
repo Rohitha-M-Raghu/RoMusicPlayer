@@ -178,8 +178,9 @@ public class ApiConfig {
             EMAIL("email", "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"),
             PASSWORD("password", "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"),
             INTEGER("integer", "^\\d+$"),
-            STRING("string", ".*");
-
+            STRING("string", ".*"),
+        	BOOLEAN("boolean", "^(true|false)$");
+        	
             private final String type;
             private final String pattern;
 

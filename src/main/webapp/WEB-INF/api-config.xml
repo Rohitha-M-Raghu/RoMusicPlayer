@@ -13,16 +13,40 @@
             </action>
             <action name="logout" service-class="com.music_player.api.service.user.UserAuthenticationService" method="logout"/>
         </endpoint>
-        <endpoint path="/MusicPlayer/api/v1/songs" method="GET">
-            <action name="getAllSongs" service-class="com.music.service.SongService" method="getAllSongs">
-                <query-param name="genre" required="false" type="string"/>
+    </api>
+    <api name="song">
+    	<endpoint path="/MusicPlayer/api/v1/songs" method="GET">
+            <action name="getAllSongs" service-class="com.music_player.api.service.song.SongService" method="getAllSongs">
+                <query-param name="include" required="false" type="string"/>
             </action>
         </endpoint>
         <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)" method="GET">
-            <action name="getSongById" service-class="com.music_player.api.service.song.SongService" method="getSongDetails"/>
+            <action name="getSongById" service-class="com.music_player.api.service.song.SongService" method="getSongDetails">
+            	<query-param name="include" required="false" type="string"/>
+            </action>
         </endpoint>
-         <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)/mp3" method="GET">
+         <!-- <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)/mp3" method="GET">
             <action name="getSongFile" service-class="com.music_player.api.service.song.SongService" method="getSongFile"/>
-        </endpoint>
+        </endpoint> -->
+    </api>
+    <api name = "user_settings">
+    	<endpoint path= "/MusicPlayer/api/v1/shuffle" method="POST">
+    		<action name="shuffleSongs" service-class="com.music_player.api.usersettings.UserSettingsService" method="shuffle">
+                <param name="shuffle" required="true" type="boolean"/>
+    		</action>
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/loop" method="POST">
+    		<action name="loopSongs" service-class="com.music_player.api.usersettings.UserSettingsService" method="loop">
+                <param name="loop" required="true" type="boolean"/>
+    		</action>
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/autoplay" method="POST">
+    		<action name="autoplaySongs" service-class="com.music_player.api.usersettings.UserSettingsService" method="autoplay">
+                <param name="autoplay" required="true" type="boolean"/>
+    		</action>
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/getSettings" method="GET">
+    		<action name="getSettings" service-class="com.music_player.api.usersettings.UserSettingsService" method="getSettings" />
+    	</endpoint>
     </api>
 </api-config>

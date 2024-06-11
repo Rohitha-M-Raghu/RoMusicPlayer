@@ -41,7 +41,7 @@ public class GeneralServlet extends HttpServlet {
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String requestPath = request.getRequestURI();
         String requestMethod = request.getMethod();
-
+        
         Response serverResponse = getResponse(request, response, requestPath, requestMethod);
         serverResponse.setHttpServletResponse(response);
     }
