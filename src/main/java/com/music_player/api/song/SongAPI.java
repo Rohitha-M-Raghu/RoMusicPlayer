@@ -12,4 +12,14 @@ public interface SongAPI {
 
 	List<Song> getSongs(boolean isIncludeSongUrl) throws SQLException;
 
+	boolean playSong(int userId, int songId) throws Exception;
+
+	boolean addSongToQueue(int userId, int songId) throws Exception;
+
+	boolean playSongNext(int userId, int songId) throws Exception;
+
+	boolean removeSongFromQueue(int userId, int songId, double order) throws SQLException, Exception;
+
+	String getSongLyrics(int songId) throws Exception;
+
 }

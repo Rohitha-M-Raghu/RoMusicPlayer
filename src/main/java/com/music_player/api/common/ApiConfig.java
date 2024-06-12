@@ -179,7 +179,8 @@ public class ApiConfig {
             PASSWORD("password", "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"),
             INTEGER("integer", "^\\d+$"),
             STRING("string", ".*"),
-        	BOOLEAN("boolean", "^(true|false)$");
+        	BOOLEAN("boolean", "^(true|false)$"),
+        	DOUBLE("double", "^[0-9]*(\\.[0-9]+)?$");
         	
             private final String type;
             private final String pattern;

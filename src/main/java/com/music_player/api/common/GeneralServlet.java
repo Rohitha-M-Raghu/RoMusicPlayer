@@ -55,7 +55,12 @@ public class GeneralServlet extends HttpServlet {
         for (ApiConfig.Api api : apiConfig.getApis()) {
             for (ApiConfig.EndPoint endpoint : api.getEndpoints()) {
                 if (endpoint.getMethod().equalsIgnoreCase(requestMethod)) {
-                    Pattern pattern = Pattern.compile(endpoint.getPath());
+//                	String queryParamPattern = "(\\?[^\\s]*)?";
+//                	String pathPattern = "^" + endpoint.getPath() + "(\\/)?" + "(\\?([^=]*=([^&]*)*(?:&([^=]*=([^&]*)*)*)*)?";
+                	String pathPattern = "^" + endpoint.getPath().replaceAll("/", "\\/") + "(\\/)?(\\?.*)?$";
+
+//                	String pathPattern = "^" + endpoint.getPath() + "(\\/)?|" + endpoint.getPath() + "(\\/)" + queryParamPattern;
+                    Pattern pattern = Pattern.compile(pathPattern);
                     Matcher matcher = pattern.matcher(requestPath);
                     if (matcher.matches()) {
                         matchedEndPoint = endpoint;

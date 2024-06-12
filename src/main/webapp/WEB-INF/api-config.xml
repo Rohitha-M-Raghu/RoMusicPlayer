@@ -25,6 +25,23 @@
             	<query-param name="include" required="false" type="string"/>
             </action>
         </endpoint>
+        <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)/lyrics" method="GET">
+            <action name="getSongLyrics" service-class="com.music_player.api.service.song.SongService" method="getSongLyrics" />
+        </endpoint>
+        <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)/play" method="POST">
+            <action name="playSongById" service-class="com.music_player.api.service.song.SongService" method="playSong" />
+        </endpoint>
+        <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)/addToQueue" method="POST">
+            <action name="addSongToQueue" service-class="com.music_player.api.service.song.SongService" method="addSongToQueue" />
+        </endpoint>
+         <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)/playSongNext" method="POST">
+            <action name="playSongNext" service-class="com.music_player.api.service.song.SongService" method="playSongNext" />
+        </endpoint>
+        <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)/removeFromQueue" method="POST">
+            <action name="removeSongFromQueue" service-class="com.music_player.api.service.song.SongService" method="removeSongFromQueue" >
+            	<query-param name="order" required="true" type="double"/>
+            </action>
+        </endpoint>
          <!-- <endpoint path="/MusicPlayer/api/v1/songs/([0-9]+)/mp3" method="GET">
             <action name="getSongFile" service-class="com.music_player.api.service.song.SongService" method="getSongFile"/>
         </endpoint> -->
@@ -47,6 +64,74 @@
     	</endpoint>
     	<endpoint path= "/MusicPlayer/api/v1/getSettings" method="GET">
     		<action name="getSettings" service-class="com.music_player.api.usersettings.UserSettingsService" method="getSettings" />
+    	</endpoint>
+    </api>
+    <api name = "user_preference">
+    	<endpoint path= "/MusicPlayer/api/v1/songs/([0-9]+)/like" method="POST">
+    		<action name="likeSongById" service-class="com.music_player.api.service.user_preference.UserPreferenceService" method="likeSong" />
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/likeNowPlaying" method="POST">
+    		<action name="likeNowPlayingSong" service-class="com.music_player.api.service.user_preference.UserPreferenceService" method="likeCurrentPlayingSong" />
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/songs/([0-9]+)/unlike" method="POST">
+    		<action name="unlikeSongById" service-class="com.music_player.api.service.user_preference.UserPreferenceService" method="unlikeSong" />
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/liked-songs" method="GET">
+    		<action name="getLikedSongs" service-class="com.music_player.api.service.user_preference.UserPreferenceService" method="getLikedSongs" />
+    	</endpoint>
+    	<endpoint path="/MusicPlayer/api/v1/frequent-songs" method="GET">
+            <action name="getFrequentlyPlayedSongs" service-class="com.music_player.api.service.user_preference.UserPreferenceService" method="getFrequentlyPlayedSongs">
+                <query-param name="include" required="false" type="string"/>
+            </action>
+        </endpoint>
+        <endpoint path= "/MusicPlayer/api/v1/playlists/([0-9]+)/like" method="POST">
+    		<action name="likePlaylist" service-class="com.music_player.api.service.user_preference.UserPreferenceService" method="likePlaylist" />
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/playlists/([0-9]+)/unlike" method="POST">
+    		<action name="unlikePlaylist" service-class="com.music_player.api.service.user_preference.UserPreferenceService" method="unlikePlaylist" />
+    	</endpoint>
+    </api>
+    <api name = "song_queue">
+    	<endpoint path= "/MusicPlayer/api/v1/clear-queue" method="POST">
+    		<action name="clearQueue" service-class="com.music_player.api.service.songqueue.SongQueueService" method="clearQueue" />
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/skipToNext" method="POST">
+    		<action name="moveToNextTrack" service-class="com.music_player.api.service.songqueue.SongQueueService" method="moveToNextTrack" />
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/skipToPrev" method="POST">
+    		<action name="moveToPrevTrack" service-class="com.music_player.api.service.songqueue.SongQueueService" method="moveToPrevTrack" />
+    	</endpoint>
+    </api>
+    <api name = "playlist">
+    	<endpoint path= "/MusicPlayer/api/v1/playlists" method="POST">
+    		<action name="createPlaylist" service-class="com.music_player.api.service.playlist.PlaylistService" method="createPlaylist">
+                <param name="playlistName" required="true" type="string"/>
+    		</action>
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/playlists/([0-9]+)/songs" method="POST">
+    		<action name="addSongToPlayList" service-class="com.music_player.api.service.playlist.PlaylistService" method="addSongToPlayList">
+                <param name="songId" required="true" type="integer"/>
+    		</action>
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/playlists/([0-9]+)/nowPlaying" method="POST">
+    		<action name="addCurrentSongToPlayList" service-class="com.music_player.api.service.playlist.PlaylistService" method="addCurrentPlayingSongToPlayList" />
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/playlists/([0-9]+)/songs/([0-9]+)" method="DELETE">
+    		<action name="removeSongFromPlaylist" service-class="com.music_player.api.service.playlist.PlaylistService" method="removeSongFromPlayList" />
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/playlists/([0-9]+)/songs" method="GET">
+    		<action name="getPlaylistSongs" service-class="com.music_player.api.service.playlist.PlaylistService" method="getPlaylistSongs" />
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/playlists/([0-9]+)/rename" method="POST">
+    		<action name="renamePlaylist" service-class="com.music_player.api.service.playlist.PlaylistService" method="renamePlaylist">
+                <param name="playlistName" required="true" type="string"/>
+    		</action>
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/playlists/([0-9]+)" method="DELETE">
+    		<action name="deletePlaylist" service-class="com.music_player.api.service.playlist.PlaylistService" method="deletePlaylist" />
+    	</endpoint>
+    	<endpoint path= "/MusicPlayer/api/v1/playlists/([0-9]+)/play" method="POST">
+    		<action name="playPlaylist" service-class="com.music_player.api.service.playlist.PlaylistService" method="playPlaylist" />
     	</endpoint>
     </api>
 </api-config>

@@ -25,4 +25,54 @@ public class AuthorizedSongAPIImpl implements SongAPI{
 		return new SongAPIImpl().getSongs(isIncludeSongUrl);
 
 	}
+	
+	@Override
+	public String getSongLyrics(int songId) throws Exception {
+		// check if user exists
+		if(!SongUtil.getInstance().checkIfSongExists(songId)) {
+			throw new NullPointerException("Song not found");
+		}
+		return new SongAPIImpl().getSongLyrics(songId);
+	}
+
+	@Override
+	public boolean playSong(int userId, int songId) throws Exception {
+		// check if user exists
+		if(!SongUtil.getInstance().checkIfSongExists(songId)) {
+			throw new NullPointerException("Song not found");
+		}
+		return new SongAPIImpl().playSong(userId, songId);
+	}
+
+	@Override
+	public boolean addSongToQueue(int userId, int songId) throws Exception {
+		// check if user exists
+		if(!SongUtil.getInstance().checkIfSongExists(songId)) {
+			throw new NullPointerException("Song not found");
+		}
+		return new SongAPIImpl().addSongToQueue(userId, songId);
+	}
+
+	@Override
+	public boolean playSongNext(int userId, int songId) throws Exception {
+		// check if user exists
+		if(!SongUtil.getInstance().checkIfSongExists(songId)) {
+			throw new NullPointerException("Song not found");
+		}
+		return new SongAPIImpl().playSongNext(userId, songId);
+	}
+
+	@Override
+	public boolean removeSongFromQueue(int userId, int songId, double order) throws Exception {
+		// check if user exists
+		if(order <= 0) {
+			throw new IllegalArgumentException("Invalid order");
+		}
+		if(!SongUtil.getInstance().checkIfSongExists(songId)) {
+			throw new NullPointerException("Song not found");
+		} else if(!SongUtil.getInstance().isSongInQueue(userId, songId, order)) {
+			throw new NullPointerException("Song not found in queue at order " + order);
+		}
+		return new SongAPIImpl().removeSongFromQueue(userId, songId, order);
+	}
 }

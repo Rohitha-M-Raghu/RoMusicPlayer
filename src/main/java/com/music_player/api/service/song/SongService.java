@@ -33,7 +33,6 @@ public class SongService {
 				}
 			}
 		}
-		
 		try {
 			Song song = Support.getAuthorizedSongAPIImpl().getSongDetails(songId, isIncludeSongUrl);
 			return new Response.Builder().ok(JacksonUtils.serialize(song)).build();
@@ -56,11 +55,12 @@ public class SongService {
 		}
 		try {
 			List<Song> songs = Support.getAuthorizedSongAPIImpl().getSongs(isIncludeSongUrl);
-			JSONObject responseBodyJSON = new JSONObject();
-			responseBodyJSON.put("data", songs);
+			
 			if(songs.isEmpty()) {
 				return new Response.Builder().noContent().build();
 			} else {
+				JSONObject responseBodyJSON = new JSONObject();
+				responseBodyJSON.put("data", songs);
 				return new Response.Builder().ok(responseBodyJSON.toString()).build();
 			}
 		} catch (Exception e) {
@@ -68,6 +68,98 @@ public class SongService {
 			return buildErrorResponse(e);
 		}
 		
+	}
+	
+	public Response getSongLyrics(RequestData requestData) {
+		// get userId from token
+		int userId = 3; 
+		int songId = Integer.parseInt(requestData.getPathParams().get("param1"));
+		try {
+			String songLyrics = Support.getAuthorizedSongAPIImpl().getSongLyrics(songId);
+			JSONObject responseBodyJSON = new JSONObject();
+			responseBodyJSON.put("data", songLyrics);
+			return new Response.Builder().ok(responseBodyJSON.toString()).build();
+
+		}catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			return buildErrorResponse(e);
+		}
+	}
+	
+	public Response playSong(RequestData requestData) {
+		// get userId from token
+		int userId = 3;
+		int songId = Integer.parseInt(requestData.getPathParams().get("param1"));
+		try {
+			if(Support.getAuthorizedSongAPIImpl().playSong(userId, songId)) {
+				return new Response.Builder().noContent().build();
+			} else {
+				return new Response.Builder().statusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+						.build();
+			}
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			return buildErrorResponse(e);
+		}
+	}
+	
+	public Response addSongToQueue(RequestData requestData) {
+		// get userId from token
+		int userId = 3;
+		int songId = Integer.parseInt(requestData.getPathParams().get("param1"));
+		try {
+			if(Support.getAuthorizedSongAPIImpl().addSongToQueue(userId, songId)) {
+				return new Response.Builder().noContent().build();
+			} else {
+				return new Response.Builder()
+						.statusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+						.build();
+			}
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			return buildErrorResponse(e);
+		}
+	}
+	
+	public Response removeSongFromQueue(RequestData requestData) {
+		// get userId from token
+		int userId = 3;
+		double order = 0;
+		int songId = Integer.parseInt(requestData.getPathParams().get("param1"));
+		if(requestData.getQueryParams().containsKey("order")) {
+			order = Double.parseDouble(requestData.getQueryParams().get("order"));
+			
+		}
+		try {
+			if(Support.getAuthorizedSongAPIImpl().removeSongFromQueue(userId, songId, order)) {
+				return new Response.Builder().noContent().build();
+			} else {
+				return new Response.Builder()
+						.statusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+						.build();
+			}
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			return buildErrorResponse(e);
+		}
+	}
+	
+	public Response playSongNext(RequestData requestData) {
+		// get userId from token
+		int userId = 3;
+		int songId = Integer.parseInt(requestData.getPathParams().get("param1"));
+		try {
+			if(Support.getAuthorizedSongAPIImpl().playSongNext(userId, songId)) {
+				return new Response.Builder().noContent().build();
+			} else {
+				return new Response.Builder()
+						.statusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+						.build();
+			}
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			return buildErrorResponse(e);
+		}
 	}
 	
 	private Response buildErrorResponse(Exception exception) {

@@ -1,20 +1,16 @@
 //$Id$
 package com.music_player.api.userpreference;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.music_player.api.song.util.Song;
 import com.music_player.api.song.util.SongUtil;
+import com.music_player.api.songqueue.util.SongQueueUtil;
 import com.music_player.api.userpreference.util.SettingsMode;
 import com.music_player.api.userpreference.util.UserPreferenceUtil;
 import com.music_player.api.userpreference.util.UserSettings;
-import com.music_player.queue.SongQueue;
-import com.music_player.queue.SongQueueAPIImpl;
-import com.music_player.queue.SongQueueUtil;
 
 public class UserPreferenceAPIImpl implements UserPreferenceAPI{
 	
@@ -28,137 +24,43 @@ public class UserPreferenceAPIImpl implements UserPreferenceAPI{
 	}
 	
 	@Override
-	public void likeCurrentPlayingSong() {
-		try {
-			Song currentPlayingSong = SongQueueUtil.getInstance().getCurrentPlayingSong();
-			
-			String songTitle = currentPlayingSong.getSongTitle();
-			String artistName = currentPlayingSong.getArtist().getArtistName();
-//			likeASong(songTitle, artistName);
-			// implement
-		} catch (Exception e) {
-			System.out.println(errorMsg);
-		}
+	public boolean likeCurrentPlayingSong(int userId) throws Exception {
+		Song currentPlayingSong = SongQueueUtil.getInstance().getCurrentPlayingSong(userId);
+		return likeASong(userId, currentPlayingSong.getSongId());
 	}
 	
 	@Override
-	public void likeASong(int userId, int songId) throws Exception {
+	public boolean likeASong(int userId, int songId) throws Exception {
 		boolean isSuccess = false;
 
 		try {
-			if(!SongUtil.getInstance().checkIfSongExists(songId)) {
-				throw new NullPointerException("Song not found...");
-			}
 			if(UserPreferenceUtil.getInstance().getLikedSongs(userId).contains(songId)) {
 				System.out.println("Song is already liked...");
-				return;
+				return true;
 			}
-			isSuccess = UserPreferenceUtil.getInstance().likeASong(userId, songId);
+			return UserPreferenceUtil.getInstance().likeASong(userId, songId);
 	
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
-		
-		if(isSuccess) {
-			System.out.println("Song liked...");
-		} else {
-			System.out.println("Song not found.");
+			return false;
 		}
 	}
 	
+	
+	
 	@Override
-	public void unlikeASong(int userId, int songId) throws Exception {
-		// display liked songs
-		boolean isSuccess = false;
-		List<Integer> likedSongIds = new ArrayList<>();
-		try {
-			likedSongIds = UserPreferenceUtil.getInstance().getLikedSongs(userId);
-		} catch (SQLException e) {
-			System.out.println("Issue while fetching liked songs...");
-			return;
-		}
-		if (likedSongIds.isEmpty()) {
-			return;
-		}
-		try {
-			if(!SongUtil.getInstance().checkIfSongExists(songId)) {
-				throw new NullPointerException("Song not found...");
-			}
-			if(likedSongIds.contains(songId)) {
-				// unlike song
-				isSuccess = UserPreferenceUtil.getInstance().unlikeASong(userId, songId);
-			} else {
-				System.out.println("Song is not a liked song...");
-				return;
-			}
-		} catch (SQLException e) {
-			System.out.println("Something went wrong while unliking song...");
-		}
-		if(isSuccess) {
-			System.out.println("Song is removed from liked songs..");
-		} else {
-			System.out.println("Failed to remove song from liked songs...");
-		}
+	public boolean unlikeASong(int userId, int songId) throws Exception {	
+		return UserPreferenceUtil.getInstance().unlikeASong(userId, songId);
 	}
 	
 	@Override
-	public void unlikePlaylist(int userId, int playlistId) {
-		// display liked playlists
-		boolean isSuccess = false;
-		List<Integer> likedPlaylists = new ArrayList<>();
-		try {
-			likedPlaylists = UserPreferenceUtil.getInstance().getLikedPlayLists(userId);
-		} catch (SQLException e) {
-			System.out.println("Issue while fetching liked playlists...");
-			return;
-		}
-		if (likedPlaylists.isEmpty()) {
-			return;
-		}
-		
-		try {
-			if(playlistId == -1) {
-				throw new NullPointerException("Playlist not found...");
-			}
-			if(likedPlaylists.contains(playlistId)) {
-				isSuccess = UserPreferenceUtil.getInstance().unlikeAPlaylist(userId, playlistId);
-			} else {
-				System.out.println("Not a liked playlist...");
-				return;
-			}
-		} catch (SQLException e) {
-			System.out.println("Something went wrong while unliking playlist...");
-		}
-		if(isSuccess) {
-			System.out.println("Playlist is removed from liked playlists..");
-		} else {
-			System.out.println("Failed to remove playlist from liked playlists...");
-		}
+	public boolean unlikePlaylist(int userId, int playlistId) throws SQLException {
+		return UserPreferenceUtil.getInstance().unlikeAPlaylist(userId, playlistId);
 	}
 	
 	@Override
-	public void likeAPlayList(int userId, int playlistId) {
-		boolean isSuccess = false;
-		try {
-			if(playlistId == -1) {
-				throw new NullPointerException("Playlist Not Found...");
-			}
-			if(UserPreferenceUtil.getInstance().getLikedPlayLists(userId).contains(playlistId)) {
-				System.out.println("Already liked...");
-				return;
-			} 
-			isSuccess = UserPreferenceUtil.getInstance().likeAPlayList(playlistId);
-
-		} catch (SQLException e) {
-			System.out.println(errorMsg);
-			e.printStackTrace();
-		}
-		
-		if(isSuccess) {
-			System.out.println("liked...");
-		} else {
-			System.out.println("Failed to like Playlist...");
-		}
+	public boolean likeAPlayList(int userId, int playlistId) throws SQLException {
+		return UserPreferenceUtil.getInstance().likeAPlayList(playlistId);
 	}
 	
 	@Override
@@ -181,7 +83,6 @@ public class UserPreferenceAPIImpl implements UserPreferenceAPI{
 							System.out.println(setting + " is turned " + (newSettings?"ON":"OFF"));
 							if(setting.equals(SettingsMode.AUTOPLAY) && !newSettings) {
 								SongQueueUtil.getInstance().clearSongQueue(userId);
-								SongQueue.getInstance().setPlaying(true);
 							} else if(setting.equals(SettingsMode.SHUFFLE)) {
 								if(newSettings) {
 									// implements
@@ -204,11 +105,19 @@ public class UserPreferenceAPIImpl implements UserPreferenceAPI{
 		}
 	
 	@Override
-	public void getLikedSongs(int userId) {
-		try {
-			UserPreferenceUtil.getInstance().getLikedSongs(userId);
-		} catch (Exception e) {
-			System.out.println(errorMsg);
+	public List<Song> getLikedSongs(int userId) throws SQLException {
+		List<Integer> likedSongIds = UserPreferenceUtil.getInstance().getLikedSongs(userId);
+		if(likedSongIds == null || likedSongIds.isEmpty()) {
+			return new ArrayList<>();
+		} else {
+			StringBuilder songs = new StringBuilder();
+			for(int i = 0; i < likedSongIds.size(); ++i) {
+				songs.append(likedSongIds.get(i));
+				if(i < likedSongIds.size() - 1) {
+					songs.append(",");
+				}
+			}
+			return SongUtil.getInstance().getSongs(false, songs.toString());
 		}
 	}
 	
@@ -231,12 +140,8 @@ public class UserPreferenceAPIImpl implements UserPreferenceAPI{
 	}
 	
 	@Override 
-	public void displayFrequentlyPlayedSongs() {
-//		try {
-//			MusicPlayerDBAPIImpl.getInstance().displayFrequentlyPlayedSongs(true, true);
-//		} catch (Exception e) {
-//			System.out.println(errorMsg);
-//		}
+	public List<Song> getFrequentlyPlayedSongs(int userId, boolean isCountNeeded) throws SQLException {
+		return SongUtil.getInstance().getFrequentlyPlayedSongs(userId, isCountNeeded);
 	}
 	
 	@Override 

@@ -11,7 +11,12 @@ public class Song {
 	private Artist artist;
 	private String songUrl;
 	private double order;
+	private int count;
     
+	public int getCount() {
+		return count;
+	}
+
 	public double getOrder() {
 		return order;
 	}
@@ -56,6 +61,7 @@ public class Song {
     	this.artist = builder.artist;
     	this.songUrl = builder.songUrl;
     	this.order = builder.order;
+    	this.count = builder.count;
     }
     
 	public static class Builder {
@@ -66,6 +72,7 @@ public class Song {
 		private Artist artist;
 		private String songUrl;
 		private double order;
+		private int count;
 	    
 		public Builder(Song song) {
 			this.songId = song.songId;
@@ -74,6 +81,7 @@ public class Song {
 			this.genre = song.genre;
 			this.artist = song.artist;
 			this.songUrl = song.songUrl;
+			this.count = song.count;
 		}
 		
 	    public Builder(int songId, String songTitle) {
@@ -108,6 +116,11 @@ public class Song {
 	    
 	    public Builder order(Double order) {
 	    	this.order = order;
+	    	return this;
+	    }
+	    
+	    public Builder count(int count) {
+	    	this.count = count;
 	    	return this;
 	    }
 	    

@@ -103,14 +103,11 @@ public class UserPreferenceUtil {
 	}
 	
 	public boolean unlikeAPlaylist(int userId, int playlistId) throws SQLException {
-		if(playlistId != -1) {
-			query = "UPDATE PlayList_Details SET IS_LIKED = 0 WHERE USER_ID = ? AND PLAYLIST_ID = ? AND IS_PRESENCE = 1";
-			pstmt = conn.prepareStatement(query);
-			pstmt.setInt(1, userId);
-			pstmt.setInt(2, playlistId);
-			return pstmt.executeUpdate() > 0;
-		}
-		return false;
+		query = "UPDATE PlayList_Details SET IS_LIKED = 0 WHERE USER_ID = ? AND PLAYLIST_ID = ? AND IS_PRESENCE = 1";
+		pstmt = conn.prepareStatement(query);
+		pstmt.setInt(1, userId);
+		pstmt.setInt(2, playlistId);
+		return pstmt.executeUpdate() > 0;
 	}
 	
 	public boolean likeAPlayList(int playlistId) throws SQLException {
