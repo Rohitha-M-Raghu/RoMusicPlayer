@@ -3,6 +3,7 @@ package com.music_player.api.userpreference;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.music_player.api.song.util.Song;
@@ -85,11 +86,9 @@ public class UserPreferenceAPIImpl implements UserPreferenceAPI{
 								SongQueueUtil.getInstance().clearSongQueue(userId);
 							} else if(setting.equals(SettingsMode.SHUFFLE)) {
 								if(newSettings) {
-									// implements
-//									SongQueueAPIImpl.getInstance().shuffleSongs();
+									shuffleSongs(userId);
 								} else {
-									// implement
-//									SongQueueAPIImpl.getInstance().unShuffleSongs();
+									unShuffleSongs(userId);
 								}
 							}
 						}
@@ -192,6 +191,52 @@ public class UserPreferenceAPIImpl implements UserPreferenceAPI{
 				.isLoop(isLoop)
 				.isShuffle(isShuffle)
 				.build();
+	}
+	
+	private void shuffleSongs(int userId) throws SQLException {
+		int currentUserSettings = UserPreferenceUtil.getInstance().getCurrentUserSettings(userId);
+		boolean isShuffle = SettingsMode.SHUFFLE.isTypeMatch(currentUserSettings);
+		if(isShuffle) {
+			try {
+				boolean isSuccess = false;
+				List<Integer> allQueuedSongIds = SongQueueUtil.getInstance().getAllQueueSongs(userId);
+				
+				// Shuffle the song IDs
+		        Collections.shuffle(allQueuedSongIds);
+		        double orderToUpdate = SongQueueUtil.getInstance().getMaxOrderOfQueuedSongs(userId);
+		        orderToUpdate +=1;
+		        
+		        isSuccess = SongQueueUtil.getInstance().updateQueuedSongOrders(userId, allQueuedSongIds, orderToUpdate);
+		        // also update current playing song order
+		        if(isSuccess) {
+					System.out.println("Shuffled queued songs...");
+		        } else {
+					System.out.println("Failed to shuffle songs...");
+		        }
+			} catch (SQLException e) {		
+				System.out.println("Failed to shuffle songs...");
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void unShuffleSongs(int userId) throws SQLException {
+		int currentUserSettings = UserPreferenceUtil.getInstance().getCurrentUserSettings(userId);
+		boolean isShuffle = SettingsMode.SHUFFLE.isTypeMatch(currentUserSettings);
+		if(!isShuffle) {
+			try {
+				boolean isSuccess = false;
+				isSuccess = SongQueueUtil.getInstance().retainOriginalSongOrders(userId);
+			if(isSuccess) {
+					System.out.println("UnShuffled queued songs...");
+		        } else {
+					System.out.println("Failed to unshuffle songs...");
+		        }
+			} catch (Exception e) {
+				System.out.println("Failed to unShuffle songs...");
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	private void changePassword() {

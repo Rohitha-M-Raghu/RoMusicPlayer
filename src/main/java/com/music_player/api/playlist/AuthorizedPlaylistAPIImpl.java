@@ -10,6 +10,8 @@ import com.music_player.api.song.util.SongUtil;
 import com.music_player.api.songqueue.util.SongQueueUtil;
 
 public class AuthorizedPlaylistAPIImpl implements PlaylistAPI{
+	
+	private PlaylistAPI playlistAPI = new PlaylistAPIImpl();
 
 	@Override
 	public boolean createPlayList(int userId, String playListName) throws Exception {
@@ -18,7 +20,7 @@ public class AuthorizedPlaylistAPIImpl implements PlaylistAPI{
 		if(PlaylistUtil.getInstance().checkIfPlaylistExists(userId, playListName)) {
 			throw new DuplicateException("Playlist with name " + playListName + " exists");
 		}
-		return new PlaylistAPIImpl().createPlayList(userId, playListName);
+		return playlistAPI.createPlayList(userId, playListName);
 	}
 
 	@Override
@@ -32,7 +34,7 @@ public class AuthorizedPlaylistAPIImpl implements PlaylistAPI{
 		} else if (PlaylistUtil.getInstance().checkIfSongInPlaylist(songId, playlistId)) {
 			throw new DuplicateException("Song already present in playlist");
 		}
-		return new PlaylistAPIImpl().addSongToPlayList(userId, playlistId, songId);
+		return playlistAPI.addSongToPlayList(userId, playlistId, songId);
 	}
 
 	@Override
@@ -45,7 +47,7 @@ public class AuthorizedPlaylistAPIImpl implements PlaylistAPI{
 		} else if (PlaylistUtil.getInstance().checkIfSongInPlaylist(currentPlayingSong.getSongId(), playlistId)) {
 			throw new DuplicateException("Song already present in playlist");
 		}
-		return new PlaylistAPIImpl().addCurrentPlayingSongToPlayList(userId, playlistId);
+		return playlistAPI.addCurrentPlayingSongToPlayList(userId, playlistId);
 	}
 
 	@Override
@@ -57,7 +59,7 @@ public class AuthorizedPlaylistAPIImpl implements PlaylistAPI{
 		} else if (!PlaylistUtil.getInstance().checkIfSongInPlaylist(songId, playlistId)) {
 			throw new NullPointerException("Song not present in playlist");
 		}
-		return new PlaylistAPIImpl().removeSongFromPlaylist(userId, songId, playlistId);
+		return playlistAPI.removeSongFromPlaylist(userId, songId, playlistId);
 	}
 
 	@Override
@@ -65,7 +67,7 @@ public class AuthorizedPlaylistAPIImpl implements PlaylistAPI{
 		if(!PlaylistUtil.getInstance().checkIfPlaylistExists(userId, playlistId)) {
 			throw new NullPointerException("Playlist not found");
 		}
-		return new PlaylistAPIImpl().getPlaylistSongs(userId, playlistId);
+		return playlistAPI.getPlaylistSongs(userId, playlistId);
 	}
 
 	@Override
@@ -76,7 +78,7 @@ public class AuthorizedPlaylistAPIImpl implements PlaylistAPI{
 		} else if(PlaylistUtil.getInstance().checkIfPlaylistExists(userId, newPlayListName)) {
 			throw new DuplicateException("Playlist with name " + newPlayListName + " exists");
 		}
-		return new PlaylistAPIImpl().renamePlaylist(userId, playlistId, newPlayListName);
+		return playlistAPI.renamePlaylist(userId, playlistId, newPlayListName);
 	}
 
 	@Override
@@ -84,7 +86,7 @@ public class AuthorizedPlaylistAPIImpl implements PlaylistAPI{
 		if(!PlaylistUtil.getInstance().checkIfPlaylistExists(userId, playlistId)) {
 			throw new NullPointerException("Playlist not found");
 		}
-		return new PlaylistAPIImpl().deletePlaylist(userId, playlistId);
+		return playlistAPI.deletePlaylist(userId, playlistId);
 	}
 
 	@Override
@@ -94,7 +96,7 @@ public class AuthorizedPlaylistAPIImpl implements PlaylistAPI{
 		} else if(PlaylistUtil.getInstance().getPlaylistSongs(playListId).isEmpty()) {
 			return null;
 		}
-		return new PlaylistAPIImpl().playPlaylist(userId, playListId);
+		return playlistAPI.playPlaylist(userId, playListId);
 	}
 
 }

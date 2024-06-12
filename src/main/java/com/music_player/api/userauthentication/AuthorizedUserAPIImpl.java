@@ -13,7 +13,7 @@ import com.music_player.api.userauthentication.util.UserUtil;
 
 public class AuthorizedUserAPIImpl implements UserAPI{
 	
-	UserAPIImpl userAPIImpl = new UserAPIImpl();
+	UserAPI userAPI = new UserAPIImpl();
 	
 	private static final Logger LOGGER = Logger.getLogger(AuthorizedUserAPIImpl.class.getName());
 

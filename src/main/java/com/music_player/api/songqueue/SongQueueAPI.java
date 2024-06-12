@@ -10,9 +10,9 @@ public interface SongQueueAPI {
 
 	boolean clearQueue(int userId);
 
-	void shuffleSongs(int userId) throws SQLException;
-
-	void unShuffleSongs(int userId) throws SQLException;
+//	void shuffleSongs(int userId) throws SQLException;
+//
+//	void unShuffleSongs(int userId) throws SQLException;
 
 	Song moveToNextTrack(int userId) throws NumberFormatException, SQLException, IOException;
 

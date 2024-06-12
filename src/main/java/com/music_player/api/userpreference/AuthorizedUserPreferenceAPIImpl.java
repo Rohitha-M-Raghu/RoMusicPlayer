@@ -17,11 +17,13 @@ import com.music_player.api.userpreference.util.UserSettings;
 import com.music_player.support.Support;
 
 public class AuthorizedUserPreferenceAPIImpl implements UserPreferenceAPI{
+	
+	private UserPreferenceAPI userPreferenceAPI = new UserPreferenceAPIImpl();
 
 	@Override
 	public boolean likeCurrentPlayingSong(int userId) throws Exception {
 		// validate if user exists
-		return new UserPreferenceAPIImpl().likeCurrentPlayingSong(userId);
+		return userPreferenceAPI.likeCurrentPlayingSong(userId);
 	}
 
 	@Override
@@ -32,7 +34,7 @@ public class AuthorizedUserPreferenceAPIImpl implements UserPreferenceAPI{
 			throw new NullPointerException("Song not found");
 		}
 		// check how to handle case in which song is already liked
-		return new UserPreferenceAPIImpl().likeASong(userId, songId);
+		return userPreferenceAPI.likeASong(userId, songId);
 	}
 	
 	@Override
@@ -51,7 +53,7 @@ public class AuthorizedUserPreferenceAPIImpl implements UserPreferenceAPI{
 			return true;
 		}
 		// check how to handle case in which song is already liked
-		return new UserPreferenceAPIImpl().unlikeASong(userId, songId);
+		return userPreferenceAPI.unlikeASong(userId, songId);
 	}
 
 	@Override
@@ -62,7 +64,7 @@ public class AuthorizedUserPreferenceAPIImpl implements UserPreferenceAPI{
 		if(UserPreferenceUtil.getInstance().getLikedPlayLists(userId).contains(playlistId)) {
 			return true;
 		} 
-		return new UserPreferenceAPIImpl().likeAPlayList(userId, playlistId);
+		return userPreferenceAPI.likeAPlayList(userId, playlistId);
 	}
 	
 	@Override
@@ -73,7 +75,7 @@ public class AuthorizedUserPreferenceAPIImpl implements UserPreferenceAPI{
 		if(!UserPreferenceUtil.getInstance().getLikedPlayLists(userId).contains(playlistId)) {
 			return true;
 		} 
-		return new UserPreferenceAPIImpl().unlikePlaylist(userId, playlistId);
+		return userPreferenceAPI.unlikePlaylist(userId, playlistId);
 	}
 
 	@Override
@@ -82,18 +84,18 @@ public class AuthorizedUserPreferenceAPIImpl implements UserPreferenceAPI{
 		if(!UserUtil.getInstance().isUserExist(userId)) {
 			throw new AuthenticationException("Invalid username or password");
 		}
-		new UserPreferenceAPIImpl().changeSettings(userId, setting, newSettings);
+		userPreferenceAPI.changeSettings(userId, setting, newSettings);
 	}
 
 	@Override
 	public List<Song> getFrequentlyPlayedSongs(int userId, boolean isCountNeeded) throws SQLException {
 		// validate if user exists
-		return new UserPreferenceAPIImpl().getFrequentlyPlayedSongs(userId, isCountNeeded);
+		return userPreferenceAPI.getFrequentlyPlayedSongs(userId, isCountNeeded);
 	}
 
 	@Override
 	public UserSettings getSettings(int userId) throws SQLException {
-		return new UserPreferenceAPIImpl().getSettings(userId);
+		return userPreferenceAPI.getSettings(userId);
 		
 	}
 
@@ -118,7 +120,7 @@ public class AuthorizedUserPreferenceAPIImpl implements UserPreferenceAPI{
 	@Override
 	public List<Song> getLikedSongs(int userId) throws SQLException {
 		// check if user exists
-		return new UserPreferenceAPIImpl().getLikedSongs(userId);
+		return userPreferenceAPI.getLikedSongs(userId);
 		
 	}
 
