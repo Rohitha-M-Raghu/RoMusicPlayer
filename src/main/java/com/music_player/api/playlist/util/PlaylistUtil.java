@@ -9,6 +9,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.music_player.api.song.util.Song;
 import com.music_player.api.song.util.SongUtil;
 import com.music_player.api.songqueue.util.SongQueueUtil;
@@ -164,6 +167,30 @@ public class PlaylistUtil {
 		} else {
 			throw new Exception();
 		}
+	}
+	
+	public JSONObject getPlaylistListing(int userId) throws SQLException {
+		query = "SELECT PlayList_Details.*, COUNT(*) AS SONGCOUNT "
+				+ "FROM PlayList_Details "
+				+ "JOIN PlayListSongMapping ON PlayList_Details.PLAYLIST_ID = PlayListSongMapping.PLAYLISTID "
+				+ "WHERE PlayList_Details.USER_ID = ? "
+				+ "GROUP BY PlayList_Details.PLAYLIST_ID";
+		pstmt = conn.prepareStatement(query);
+		pstmt.setInt(1, userId);
+		res = pstmt.executeQuery();
+		JSONArray playlistListing = new JSONArray();
+		while(res.next()) {
+			JSONObject playlistData = new JSONObject();
+			playlistData.put("playlistId", res.getInt("PlayList_Details.PLAYLIST_ID"));
+			playlistData.put("playlistName", res.getString("PlayList_Details.PLAYLIST_NAME"));
+			playlistData.put("imgUrl", "images/playlist-folder-image.jpg");
+			playlistData.put("songCount", res.getInt("SONGCOUNT"));
+			playlistListing.put(playlistData);
+		}
+		
+		JSONObject playlistListingData = new JSONObject();
+		playlistListingData.put("data", playlistListing);
+		return playlistListingData;
 	}
 	
 	public Song addAllPlaylistSongsToQueue(int userId, boolean isQueueCleared, int playListId) throws SQLException, NumberFormatException, IOException {

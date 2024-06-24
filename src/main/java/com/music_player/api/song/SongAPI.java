@@ -22,4 +22,8 @@ public interface SongAPI {
 
 	String getSongLyrics(int songId) throws Exception;
 
+	Song getCurrentPlatingSong(int userId) throws SQLException;
+
+	Song playAllSongs(int userId) throws SQLException;
+
 }

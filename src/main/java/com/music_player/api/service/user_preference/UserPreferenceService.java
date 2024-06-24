@@ -92,6 +92,17 @@ public class UserPreferenceService {
 		}
 	}
 	
+	public Response playLikedSongs(RequestData requestData) {
+		int userId = 3;
+		try {
+			Song song = Support.getAuthorizedUserPreferenceAPIImpl().playlikedSongs(userId);
+			return new Response.Builder().ok(JacksonUtils.serialize(song)).build();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			return buildErrorResponse(e);
+		}
+	}
+	
 	public Response getFrequentlyPlayedSongs(RequestData requestData) {
 		// get userId from token
 		boolean isCountNeeded = false;

@@ -1,6 +1,7 @@
 //$Id$
 package com.music_player.api.userpreference.util;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,6 +9,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.music_player.api.song.util.Song;
+import com.music_player.api.song.util.SongUtil;
+import com.music_player.api.songqueue.util.SongQueueUtil;
 import com.music_player.db.DBConnector;
 
 public class UserPreferenceUtil {
@@ -116,5 +120,25 @@ public class UserPreferenceUtil {
 	    pstmt.setInt(1, 1);
 	    pstmt.setInt(2, playlistId);
 	    return pstmt.executeUpdate() > 0;
+	}
+	
+	public Song addLikedSongsToQueue(int userId, boolean isQueueCleared) throws SQLException, NumberFormatException, IOException {
+		double order;
+		if(isQueueCleared) {
+			order = 1;
+		} else {
+			order = SongQueueUtil.getInstance().getHighestOrder(userId) + 1;
+		}
+		
+		List<Integer> songList = getLikedSongs(userId);
+		for (Integer songId : songList) {
+	        SongQueueUtil.getInstance().addSongToQueue(userId, songId, order, -1);
+	        order++; // Increment the order for the next song
+	    }
+		if(isQueueCleared) {
+			return SongUtil.getInstance().getSongDetails(songList.get(0), true);
+		} else {
+			return null;
+		}
 	}
 }

@@ -38,4 +38,6 @@ public interface UserPreferenceAPI {
 
 	void getLikedPlayLists(int userId);
 
+	Song playlikedSongs(int userId) throws SQLException;
+
 }

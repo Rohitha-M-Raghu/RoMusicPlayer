@@ -1,17 +1,20 @@
 //$Id$
 package com.music_player.api.userpreference;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.music_player.api.playlist.util.PlaylistUtil;
 import com.music_player.api.song.util.Song;
 import com.music_player.api.song.util.SongUtil;
 import com.music_player.api.songqueue.util.SongQueueUtil;
 import com.music_player.api.userpreference.util.SettingsMode;
 import com.music_player.api.userpreference.util.UserPreferenceUtil;
 import com.music_player.api.userpreference.util.UserSettings;
+import com.music_player.db.DBConnector;
 
 public class UserPreferenceAPIImpl implements UserPreferenceAPI{
 	
@@ -116,7 +119,7 @@ public class UserPreferenceAPIImpl implements UserPreferenceAPI{
 					songs.append(",");
 				}
 			}
-			return SongUtil.getInstance().getSongs(false, songs.toString());
+			return SongUtil.getInstance().getSongs(true, songs.toString());
 		}
 	}
 	
@@ -255,5 +258,28 @@ public class UserPreferenceAPIImpl implements UserPreferenceAPI{
 //			System.out.println("Something went wrong...");
 //			e.printStackTrace();
 //		}
+	}
+
+	@Override
+	public Song playlikedSongs(int userId) throws SQLException {
+		Connection conn = DBConnector.getInstance().getConnection();
+		try {
+			conn.setAutoCommit(false);
+			SongQueueUtil.getInstance().clearSongQueue(userId);
+			Song firstSong = UserPreferenceUtil.getInstance().addLikedSongsToQueue(userId, true);
+			SongQueueUtil.getInstance().setCurrentPlayingSong(userId, firstSong.getSongId(), 1.0);
+			conn.commit();
+			
+			// shuffle off if on
+			if(UserPreferenceAPIImpl.getInstance().getSettings(userId).isShuffle()) {
+				UserPreferenceAPIImpl.getInstance().changeSettings(userId, SettingsMode.SHUFFLE, false);
+			}
+			return firstSong;
+		} catch (Exception e) {
+			conn.rollback();
+		} finally {
+			conn.setAutoCommit(true);
+		}
+		return null;
 	}
 }

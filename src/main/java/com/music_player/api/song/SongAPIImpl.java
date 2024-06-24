@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.music_player.api.playlist.util.PlaylistUtil;
 import com.music_player.api.song.util.Song;
 import com.music_player.api.song.util.SongUtil;
 import com.music_player.api.songqueue.util.SongQueueUtil;
@@ -128,5 +129,33 @@ public class SongAPIImpl implements SongAPI{
 	public String getSongLyrics(int songId) throws Exception {
 		Song songDetails = SongUtil.getInstance().getSongDetails(songId, false);
 		return SongUtil.getInstance().getSongLyrics(songDetails.getSongTitle(), songDetails.getArtist().getArtistName());
+	}
+
+	@Override
+	public Song getCurrentPlatingSong(int userId) throws SQLException {
+		return SongUtil.getInstance().getCurrentPlayingSong(userId);
+	}
+
+	@Override
+	public Song playAllSongs(int userId) throws SQLException {
+		Connection conn = DBConnector.getInstance().getConnection();
+		try {
+			conn.setAutoCommit(false);
+			SongQueueUtil.getInstance().clearSongQueue(userId);
+			Song firstSong = SongUtil.getInstance().addAllSongsToQueue(userId, true);
+			SongQueueUtil.getInstance().setCurrentPlayingSong(userId, firstSong.getSongId(), 1.0);
+			conn.commit();
+			
+			// shuffle off if on
+			if(UserPreferenceAPIImpl.getInstance().getSettings(userId).isShuffle()) {
+				UserPreferenceAPIImpl.getInstance().changeSettings(userId, SettingsMode.SHUFFLE, false);
+			}
+			return firstSong;
+		} catch (Exception e) {
+			conn.rollback();
+		} finally {
+			conn.setAutoCommit(true);
+		}
+		return null;
 	}
 }

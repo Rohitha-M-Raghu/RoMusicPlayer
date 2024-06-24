@@ -42,6 +42,17 @@ public class SongService {
 		}
 	}
 	
+	public Response getCurrentPlayingSong(RequestData requestData) {
+		int userId = 3;
+		try {
+			Song song = Support.getAuthorizedSongAPIImpl().getCurrentPlatingSong(userId);
+			return new Response.Builder().ok(JacksonUtils.serialize(song)).build();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			return buildErrorResponse(e);
+		}
+	}
+	
 	public Response getAllSongs(RequestData requestData) {
 		boolean isIncludeSongUrl = false;
 		
@@ -156,6 +167,17 @@ public class SongService {
 						.statusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
 						.build();
 			}
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			return buildErrorResponse(e);
+		}
+	}
+	
+	public Response playAllSongs(RequestData requestData) {
+		int userId = 3;
+		try {
+			Song song = Support.getAuthorizedSongAPIImpl().playAllSongs(userId);
+			return new Response.Builder().ok(JacksonUtils.serialize(song)).build();
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, e.getMessage());
 			return buildErrorResponse(e);

@@ -23,6 +23,12 @@ public class AuthorizedSongAPIImpl implements SongAPI{
 	}
 	
 	@Override
+	public Song getCurrentPlatingSong(int userId) throws SQLException {
+		// validate userId
+		return songAPI.getCurrentPlatingSong(userId);
+	}
+	
+	@Override
 	public List<Song> getSongs(boolean isIncludeSongUrl) throws SQLException {
 		return songAPI.getSongs(isIncludeSongUrl);
 
@@ -76,5 +82,11 @@ public class AuthorizedSongAPIImpl implements SongAPI{
 			throw new NullPointerException("Song not found in queue at order " + order);
 		}
 		return songAPI.removeSongFromQueue(userId, songId, order);
+	}
+	
+	@Override
+	public Song playAllSongs(int userId) throws SQLException {
+		// validate user
+		return songAPI.playAllSongs(userId);
 	}
 }

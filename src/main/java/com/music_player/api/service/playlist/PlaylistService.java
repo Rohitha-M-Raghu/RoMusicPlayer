@@ -163,6 +163,18 @@ public class PlaylistService {
 		}
 	}
 	
+	public Response getPlaylistListing(RequestData requestData) {
+		// get userID from token
+		int userId = 3;
+		try {
+			JSONObject playlistListingJSON = Support.getAuthorizedPlaylistAPIImpl().getPlaylistListing(userId);
+			return new Response.Builder().ok(playlistListingJSON.toString()).build();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			return buildErrorResponse(e);
+		}
+	}
+	
 	private Response buildErrorResponse(Exception exception) {
 		JSONObject errorMsg = new JSONObject();
 		errorMsg.put("ErrorMsg", exception.getMessage());

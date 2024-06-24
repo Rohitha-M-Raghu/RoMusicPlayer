@@ -4,6 +4,8 @@ package com.music_player.api.playlist;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.json.JSONObject;
+
 import com.music_player.api.common.DuplicateException;
 import com.music_player.api.song.util.Song;
 
@@ -24,5 +26,7 @@ public interface PlaylistAPI {
 	boolean deletePlaylist(int userId, int playlistId) throws SQLException, Exception;
 
 	Song playPlaylist(int userId, int playListId) throws Exception;
+
+	JSONObject getPlaylistListing(int userId) throws SQLException;
 
 }

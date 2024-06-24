@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
+
 import com.music_player.api.playlist.util.PlaylistUtil;
 import com.music_player.api.song.util.Song;
 import com.music_player.api.song.util.SongUtil;
@@ -54,7 +56,7 @@ public class PlaylistAPIImpl implements PlaylistAPI{
 				songs.append(",");
 			}
 		}
-		return SongUtil.getInstance().getSongs(false, songs.toString());
+		return SongUtil.getInstance().getSongs(true, songs.toString());
 	}
 	
 	@Override
@@ -88,5 +90,10 @@ public class PlaylistAPIImpl implements PlaylistAPI{
 			conn.setAutoCommit(true);
 		}
 		return null;
+	}
+
+	@Override
+	public JSONObject getPlaylistListing(int userId) throws SQLException {
+		return PlaylistUtil.getInstance().getPlaylistListing(userId);
 	}
 }

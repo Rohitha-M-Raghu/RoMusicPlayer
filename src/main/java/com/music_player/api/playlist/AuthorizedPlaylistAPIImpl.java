@@ -1,7 +1,10 @@
 //$Id$
 package com.music_player.api.playlist;
 
+import java.sql.SQLException;
 import java.util.List;
+
+import org.json.JSONObject;
 
 import com.music_player.api.common.DuplicateException;
 import com.music_player.api.playlist.util.PlaylistUtil;
@@ -98,5 +101,10 @@ public class AuthorizedPlaylistAPIImpl implements PlaylistAPI{
 		}
 		return playlistAPI.playPlaylist(userId, playListId);
 	}
-
+	
+	@Override
+	public JSONObject getPlaylistListing(int userId) throws SQLException {
+		// validate user
+		return playlistAPI.getPlaylistListing(userId);
+	}
 }

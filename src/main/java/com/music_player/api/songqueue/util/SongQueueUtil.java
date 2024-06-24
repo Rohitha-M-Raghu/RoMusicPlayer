@@ -142,8 +142,9 @@ public class SongQueueUtil {
 
 			if(!isSongDetailsNeeded) {
 				return nextSongDetails;
-			}
-			return SongUtil.getInstance().getSongDetails(res.getInt("SONG_ID"), true);
+			} 
+			return new Song.Builder(SongUtil.getInstance().getSongDetails(res.getInt("SONG_ID"), true))
+					.order(res.getDouble("ORDER")).build();
 		}
 		return null;
 	} 
@@ -282,7 +283,7 @@ public class SongQueueUtil {
 		res = pstmt.executeQuery();
 		if(res.next()) {
 			if(isSongDetailsNeeded) {
-				SongUtil.getInstance().getSongDetails(res.getInt("SONG_ID"), true);
+				return SongUtil.getInstance().getSongDetails(res.getInt("SONG_ID"), true);
 			} else {
 				return new Song.Builder(res.getInt("SONG_ID"), res.getDouble("ORDER")).build();
 			}

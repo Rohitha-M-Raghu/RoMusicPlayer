@@ -129,5 +129,11 @@ public class AuthorizedUserPreferenceAPIImpl implements UserPreferenceAPI{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public Song playlikedSongs(int userId) throws SQLException {
+		// validate user
+		return userPreferenceAPI.playlikedSongs(userId);
+	}
 
 }

@@ -18,6 +18,7 @@ import java.util.zip.GZIPOutputStream;
 import org.json.JSONObject;
 
 import com.music_player.api.artist.Artist;
+import com.music_player.api.songqueue.util.SongQueueUtil;
 import com.music_player.db.DBConnector;
 
 
@@ -60,11 +61,42 @@ public class SongUtil {
 			Song.Builder songBuilder = new Song.Builder(res.getInt("SONG_ID"), res.getString("SONG_TITLE"))
 					.duration(res.getString("DURATION"))
 					.genre(res.getString("GENRE"))
-					.artist(artist);
+					.artist(artist)
+					.imageUrl(res.getString("IMAGE_URL"));
 			 if(isIncludeSongUrl) {
 				 return songBuilder.songUrl(res.getString("Song_URL")).build();
 			 }
 			 return songBuilder.build();
+		}
+		return null;
+	}
+	
+	public Song getCurrentPlayingSong(int userId) throws SQLException {
+		query = "SELECT * "
+				+ "FROM Song_Details JOIN Artist_Details "
+				+ "ON Song_Details.Artist_ID = Artist_Details.ARTIST_ID "
+				+ "WHERE Song_Details.SONG_ID IN( "
+				+ "SELECT SONG_ID FROM Queued_Songs WHERE USER_ID = ? AND IS_CURRENTPLAYING = 1)";
+		pstmt = conn.prepareStatement(query);
+		pstmt.setInt(1, userId);
+		res = pstmt.executeQuery();
+		
+		if(res.next()) {
+			Artist artist = new Artist.Builder(res.getInt("ARTIST_ID"), res.getString("ARTIST_NAME"))
+							.description(res.getString("DESCRIPTION"))
+							.country(res.getString("COUNTRY"))
+							.genre(res.getString("GENRE"))
+							.build();
+			
+//			byte[] originalMp3Bytes = res.getBytes("SONG_FILE_MP3");
+//            byte[] compressedMp3Bytes = compressBytes(originalMp3Bytes);
+			Song.Builder songBuilder = new Song.Builder(res.getInt("SONG_ID"), res.getString("SONG_TITLE"))
+					.duration(res.getString("DURATION"))
+					.genre(res.getString("GENRE"))
+					.artist(artist)
+					.imageUrl(res.getString("IMAGE_URL"));
+		    return songBuilder.songUrl(res.getString("Song_URL")).build();
+			 
 		}
 		return null;
 	}
@@ -87,7 +119,8 @@ public class SongUtil {
 			Song.Builder songBuilder = new Song.Builder(res.getInt("SONG_ID"), res.getString("SONG_TITLE"))
 					.duration(res.getString("DURATION"))
 					.genre(res.getString("GENRE"))
-					.artist(artist);
+					.artist(artist)
+					.imageUrl(res.getString("IMAGE_URL"));
 			
 			 if(isIncludeSongUrl) {
 				 Song song = songBuilder.songUrl(res.getString("Song_URL")).build();
@@ -159,7 +192,8 @@ public class SongUtil {
 			Song.Builder songBuilder = new Song.Builder(res.getInt("SONG_ID"), res.getString("SONG_TITLE"))
 					.duration(res.getString("DURATION"))
 					.genre(res.getString("GENRE"))
-					.artist(artist);
+					.artist(artist)
+					.imageUrl(res.getString("IMAGE_URL"));
 			
 			 if(isIncludeSongUrl) {
 				 Song song = songBuilder.songUrl(res.getString("Song_URL")).build();
@@ -258,4 +292,39 @@ public class SongUtil {
 		}
 		return "Error loading lyrics";
 	}
+	
+	public Song addAllSongsToQueue(int userId, boolean isQueueCleared) throws SQLException, NumberFormatException, IOException {
+		double order;
+		if(isQueueCleared) {
+			order = 1;
+		} else {
+			order = SongQueueUtil.getInstance().getHighestOrder(userId) + 1;
+		}
+		
+		List<Integer> songList = getAllSongIds();
+		for (Integer songId : songList) {
+	        SongQueueUtil.getInstance().addSongToQueue(userId, songId, order, -1);
+	        order++; // Increment the order for the next song
+	    }
+		if(isQueueCleared) {
+			return SongUtil.getInstance().getSongDetails(songList.get(0), true);
+		} else {
+			return null;
+		}
+	}
+	
+	public List<Integer> getAllSongIds() throws SQLException {
+		query = "SELECT * "
+				+ "FROM Song_Details JOIN Artist_Details "
+				+ "ON Song_Details.Artist_ID = Artist_Details.ARTIST_ID ";
+		pstmt = conn.prepareStatement(query);
+		res = pstmt.executeQuery();
+		
+		List<Integer> songIds = new ArrayList<>();
+		while(res.next()) {
+			songIds.add(res.getInt("SONG_ID"));
+		}
+		return songIds;
+	}
+	
 }

@@ -10,9 +10,14 @@ public class Song {
 	private String genre;
 	private Artist artist;
 	private String songUrl;
+	private String imageUrl;
 	private double order;
 	private int count;
     
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
 	public int getCount() {
 		return count;
 	}
@@ -62,6 +67,7 @@ public class Song {
     	this.songUrl = builder.songUrl;
     	this.order = builder.order;
     	this.count = builder.count;
+    	this.imageUrl = builder.imageUrl;
     }
     
 	public static class Builder {
@@ -73,6 +79,7 @@ public class Song {
 		private String songUrl;
 		private double order;
 		private int count;
+		private String imageUrl;
 	    
 		public Builder(Song song) {
 			this.songId = song.songId;
@@ -82,6 +89,7 @@ public class Song {
 			this.artist = song.artist;
 			this.songUrl = song.songUrl;
 			this.count = song.count;
+			this.imageUrl = song.imageUrl;
 		}
 		
 	    public Builder(int songId, String songTitle) {
@@ -111,6 +119,11 @@ public class Song {
 	    
 	    public Builder songUrl(String url) {
 	    	this.songUrl = url;
+	    	return this;
+	    }
+	    
+	    public Builder imageUrl(String imageUrl) {
+	    	this.imageUrl = imageUrl;
 	    	return this;
 	    }
 	    
